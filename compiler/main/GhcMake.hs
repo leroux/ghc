@@ -479,9 +479,9 @@ findPartiallyCompletedCycles modsDone theGraph
         chew [] = []
         chew ((AcyclicSCC _):rest) = chew rest    -- acyclic?  not interesting.
         chew ((CyclicSCC vs):rest)
-           = let names_in_this_cycle = nub (map ms_mod vs)
+           = let names_in_this_cycle = ordNub (map ms_mod vs)
                  mods_in_this_cycle  
-                    = nub ([done | done <- modsDone, 
+                    = ordNub ([done | done <- modsDone, 
                                    done `elem` names_in_this_cycle])
                  chewed_rest = chew rest
              in 
@@ -573,7 +573,7 @@ checkStability hpt sccs all_home_mods = foldl checkSCC ([],[]) sccs
         scc_mods = map ms_mod_name scc
         home_module m   = m `elem` all_home_mods && m `notElem` scc_mods
 
-        scc_allimps = nub (filter home_module (concatMap ms_home_allimps scc))
+        scc_allimps = ordNub (filter home_module (concatMap ms_home_allimps scc))
             -- all imports outside the current SCC, but in the home pkg
         
         stable_obj_imps = map (`elem` stable_obj) scc_allimps

@@ -29,8 +29,8 @@ import Platform
 import OrdList
 import UniqSupply
 import Unique
+import Util
 
-import Data.List ( nub )
 import Data.Maybe ( catMaybes )
 
 type LlvmStatements = OrdList LlvmStatement
@@ -1504,7 +1504,7 @@ funPrologue live cmmBlocks = do
       getAssignedRegs (CmmUnsafeForeignCall _ rs _) = map CmmGlobal trash ++ map CmmLocal rs
       getAssignedRegs _                  = []
       getRegsBlock (_, body, _)          = concatMap getAssignedRegs $ blockToList body
-      assignedRegs = nub $ concatMap (getRegsBlock . blockSplit) cmmBlocks
+      assignedRegs = ordNub $ concatMap (getRegsBlock . blockSplit) cmmBlocks
       isLive r     = r `elem` alwaysLive || r `elem` live
 
   dflags <- getDynFlags

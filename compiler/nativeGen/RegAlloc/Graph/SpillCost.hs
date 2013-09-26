@@ -28,8 +28,9 @@ import Digraph          (flattenSCCs)
 import Outputable
 import Platform
 import State
+import Util
 
-import Data.List        (nub, minimumBy)
+import Data.List        (minimumBy)
 import Data.Maybe
 
 
@@ -112,8 +113,8 @@ slurpSpillCostInfo platform cmm
 
                 -- Increment counts for what regs were read/written from.
                 let (RU read written)   = regUsageOfInstr platform instr
-                mapM_ incUses   $ catMaybes $ map takeVirtualReg $ nub read
-                mapM_ incDefs   $ catMaybes $ map takeVirtualReg $ nub written
+                mapM_ incUses   $ catMaybes $ map takeVirtualReg $ ordNub read
+                mapM_ incDefs   $ catMaybes $ map takeVirtualReg $ ordNub written
 
                 -- Compute liveness for entry to next instruction.
                 let liveDieRead_virt    = takeVirtuals (liveDieRead  live)

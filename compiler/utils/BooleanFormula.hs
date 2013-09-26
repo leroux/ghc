@@ -13,7 +13,7 @@ module BooleanFormula (
         pprBooleanFormula, pprBooleanFormulaNice
   ) where
 
-import Data.List ( nub, intersperse )
+import Data.List ( intersperse )
 import Data.Data
 import Data.Foldable ( Foldable )
 import Data.Traversable ( Traversable )
@@ -21,13 +21,14 @@ import Data.Traversable ( Traversable )
 import MonadUtils
 import Outputable
 import Binary
+import Util
 
 ----------------------------------------------------------------------
 -- Boolean formula type and smart constructors
 ----------------------------------------------------------------------
 
 data BooleanFormula a = Var a | And [BooleanFormula a] | Or [BooleanFormula a]
-  deriving (Eq, Data, Typeable, Functor, Foldable, Traversable)
+  deriving (Eq, Ord, Data, Typeable, Functor, Foldable, Traversable)
 
 mkVar :: a -> BooleanFormula a
 mkVar = Var
@@ -40,8 +41,8 @@ mkBool :: Bool -> BooleanFormula a
 mkBool False = mkFalse
 mkBool True  = mkTrue
 
-mkAnd :: Eq a => [BooleanFormula a] -> BooleanFormula a
-mkAnd = maybe mkFalse (mkAnd' . nub) . concatMapM fromAnd
+mkAnd :: (Eq a, Ord a) => [BooleanFormula a] -> BooleanFormula a
+mkAnd = maybe mkFalse (mkAnd' . ordNub) . concatMapM fromAnd
   where
   fromAnd :: BooleanFormula a -> Maybe [BooleanFormula a]
   fromAnd (And xs) = Just xs
@@ -52,8 +53,8 @@ mkAnd = maybe mkFalse (mkAnd' . nub) . concatMapM fromAnd
   mkAnd' [x] = x
   mkAnd' xs = And xs
 
-mkOr :: Eq a => [BooleanFormula a] -> BooleanFormula a
-mkOr = maybe mkTrue (mkOr' . nub) . concatMapM fromOr
+mkOr :: (Eq a, Ord a) => [BooleanFormula a] -> BooleanFormula a
+mkOr = maybe mkTrue (mkOr' . ordNub) . concatMapM fromOr
   where
   fromOr (Or xs) = Just xs
   fromOr (And []) = Nothing
@@ -80,7 +81,7 @@ eval f (Or xs)  = any (eval f) xs
 
 -- Simplify a boolean formula.
 -- The argument function should give the truth of the atoms, or Nothing if undecided.
-simplify :: Eq a => (a -> Maybe Bool) -> BooleanFormula a -> BooleanFormula a
+simplify :: (Eq a, Ord a) => (a -> Maybe Bool) -> BooleanFormula a -> BooleanFormula a
 simplify f (Var a) = case f a of
   Nothing -> Var a
   Just b  -> mkBool b
@@ -90,7 +91,7 @@ simplify f (Or xs) = mkOr (map (simplify f) xs)
 -- Test if a boolean formula is satisfied when the given values are assigned to the atoms
 -- if it is, returns Nothing
 -- if it is not, return (Just remainder)
-isUnsatisfied :: Eq a => (a -> Bool) -> BooleanFormula a -> Maybe (BooleanFormula a)
+isUnsatisfied :: (Eq a, Ord a) => (a -> Bool) -> BooleanFormula a -> Maybe (BooleanFormula a)
 isUnsatisfied f bf
     | isTrue bf' = Nothing
     | otherwise  = Just bf'

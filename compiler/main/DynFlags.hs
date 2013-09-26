@@ -1975,7 +1975,7 @@ parseDynamicFlagsFull activeFlags cmdline dflags0 args = do
 
 updateWays :: DynFlags -> DynFlags
 updateWays dflags
-    = let theWays = sort $ nub $ ways dflags
+    = let theWays = sort $ ordNub $ ways dflags
           f = if WayDyn `elem` theWays then unSetGeneralFlag'
                                        else setGeneralFlag'
       in f Opt_Static
