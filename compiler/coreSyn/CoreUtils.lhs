@@ -428,7 +428,7 @@ filterAlts us ty imposs_cons alts
      where
        trimmed_alts = filterOut (impossible_alt inst_tys) alts_wo_default
 
-       imposs_deflt_cons = nub (imposs_cons ++ alt_cons)
+       imposs_deflt_cons = ordNub (imposs_cons ++ alt_cons)
          -- "imposs_deflt_cons" are handled 
          --   EITHER by the context, 
          --   OR by a non-DEFAULT branch in this case expression.

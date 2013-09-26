@@ -40,6 +40,7 @@ import Unique
 import State
 import Outputable
 import Platform
+import Util
 
 import Data.List
 import Data.Maybe
@@ -207,7 +208,7 @@ cleanForward platform blockId assoc acc (li : instrs)
         -- Writing to a reg changes its value.
         | LiveInstr instr _     <- li
         , RU _ written          <- regUsageOfInstr platform instr
-        = let assoc'    = foldr delAssoc assoc (map SReg $ nub written)
+        = let assoc'    = foldr delAssoc assoc (map SReg $ ordNub written)
           in  cleanForward platform blockId assoc' (li : acc) instrs
 
 

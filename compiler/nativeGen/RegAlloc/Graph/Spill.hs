@@ -20,6 +20,7 @@ import UniqSet
 import UniqSupply
 import Outputable
 import Platform
+import Util
 
 import Data.List
 import Data.Maybe
@@ -181,9 +182,9 @@ regSpill_instr platform regSlotMap
         let RU rlRead rlWritten = regUsageOfInstr platform instr
 
         -- sometimes a register is listed as being read more than once,
-        --      nub this so we don't end up inserting two lots of spill code.
-        let rsRead_             = nub rlRead
-        let rsWritten_          = nub rlWritten
+        --      ordNub this so we don't end up inserting two lots of spill code.
+        let rsRead_             = ordNub rlRead
+        let rsWritten_          = ordNub rlWritten
 
         -- if a reg is modified, it appears in both lists, want to undo this..
         let rsRead              = rsRead_    \\ rsWritten_
