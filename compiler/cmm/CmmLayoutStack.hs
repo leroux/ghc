@@ -30,7 +30,6 @@ import qualified Data.Set as Set
 import Control.Monad.Fix
 import Data.Array as Array
 import Data.Bits
-import Data.List (nub)
 import Control.Monad (liftM)
 
 #include "HsVersions.h"
@@ -398,7 +397,7 @@ handleLastNode dflags procpoints liveness cont_info stackmaps
      handleBranches
          -- Note [diamond proc point]
        | Just l <- futureContinuation middle
-       , (nub $ filter (`setMember` procpoints) $ successors last) == [l]
+       , (ordNub $ filter (`setMember` procpoints) $ successors last) == [l]
        = do
          let cont_args = mapFindWithDefault 0 l cont_info
              (assigs, cont_stack) = prepareStack l cont_args (sm_ret_off stack0)

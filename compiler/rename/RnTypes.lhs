@@ -47,7 +47,6 @@ import BasicTypes       ( compareFixity, funTyFixity, negateFixity,
 import Outputable
 import FastString
 import Maybes
-import Data.List        ( nub )
 import Control.Monad    ( unless, when )
 
 #include "HsVersions.h"
@@ -366,7 +365,7 @@ bindHsTyVars doc mb_assoc kv_bndrs tv_bndrs thing_inside
                                  , let (_, kvs) = extractHsTyRdrTyVars kind
                                  , kv <- kvs ]
              all_kvs = filterOut (`elemLocalRdrEnv` rdr_env) $
-                       nub (kv_bndrs ++ kvs_from_tv_bndrs)
+                       ordNub (kv_bndrs ++ kvs_from_tv_bndrs)
              overlap_kvs = [ kv | kv <- all_kvs, any ((==) kv . hsLTyVarName) tvs ]
                 -- These variables appear both as kind and type variables
                 -- in the same declaration; eg  type family  T (x :: *) (y :: x)
@@ -943,17 +942,17 @@ extractHsTyRdrTyVars :: LHsType RdrName -> FreeKiTyVars
 -- See Note [Kind and type-variable binders]
 extractHsTyRdrTyVars ty
   = case extract_lty ty ([],[]) of
-     (kvs, tvs) -> (nub kvs, nub tvs)
+     (kvs, tvs) -> (ordNub kvs, ordNub tvs)
 
 extractHsTysRdrTyVars :: [LHsType RdrName] -> FreeKiTyVars
 -- See Note [Kind and type-variable binders]
 extractHsTysRdrTyVars ty
   = case extract_ltys ty ([],[]) of
-     (kvs, tvs) -> (nub kvs, nub tvs)
+     (kvs, tvs) -> (ordNub kvs, ordNub tvs)
 
 extractRdrKindSigVars :: Maybe (LHsKind RdrName) -> [RdrName]
 extractRdrKindSigVars Nothing = []
-extractRdrKindSigVars (Just k) = nub (fst (extract_lkind k ([],[])))
+extractRdrKindSigVars (Just k) = ordNub (fst (extract_lkind k ([],[])))
 
 extractDataDefnKindVars :: HsDataDefn RdrName -> [RdrName]
 -- Get the scoped kind variables mentioned free in the constructor decls

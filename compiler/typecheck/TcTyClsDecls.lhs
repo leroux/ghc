@@ -1864,7 +1864,7 @@ mkRecSelBind (tycon, sel_name)
 ---------------
 tyConFields :: TyCon -> [FieldLabel]
 tyConFields tc
-  | isAlgTyCon tc = nub (concatMap dataConFieldLabels (tyConDataCons tc))
+  | isAlgTyCon tc = ordNub (concatMap dataConFieldLabels (tyConDataCons tc))
   | otherwise     = []
 \end{code}
 

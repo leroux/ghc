@@ -97,6 +97,9 @@ module Util (
 
         -- * Hashing
         hashString,
+
+        -- * OrdNub (faster nub)
+        ordNub, ordNubBy
     ) where
 
 #include "HsVersions.h"
@@ -125,6 +128,8 @@ import Data.Ord         ( comparing )
 import Data.Bits
 import Data.Word
 import qualified Data.IntMap as IM
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 import Data.Time
 #if __GLASGOW_HASKELL__ < 705
@@ -1141,3 +1146,34 @@ mulHi a b = fromIntegral (r `shiftR` 32)
          r = fromIntegral a * fromIntegral b
 \end{code}
 
+%************************************************************************
+%*                                                                      *
+\subsection[Utils-OrdNub]{Utils for faster and more efficient nub}
+%*                                                                      *
+%************************************************************************
+
+\begin{code}
+-- https://github.com/nh2/haskell-ordnub/blob/master/ordnub.hs#L27-L32
+ordNub :: (Ord a) => [a] -> [a]
+ordNub l = go Set.empty l
+  where
+    go _ []     = []
+    go s (x:xs) = if x `Set.member` s then go s xs
+                                      else x : go (Set.insert x s) xs
+
+-- https://github.com/nh2/haskell-ordnub/blob/master/ordnub.hs#L58-L71
+ordNubBy :: (Ord b) => (a -> b) -> (a -> a -> Bool) -> [a] -> [a]
+ordNubBy p f l = go Map.empty l
+  where
+    go _ []     = []
+    go m (x:xs) = let b = p x in case b `Map.lookup` m of
+                    Nothing     -> x : go (Map.insert b [x] m) xs
+                    Just bucket
+                      | elem_by f x bucket -> go m xs
+                      | otherwise          -> x : go (Map.insert b (x:bucket) m) xs
+
+    -- From the Data.List source code.
+    elem_by :: (a -> a -> Bool) -> a -> [a] -> Bool
+    elem_by _  _ []     = False
+    elem_by eq y (x:xs) = y `eq` x || elem_by eq y xs
+\end{code}

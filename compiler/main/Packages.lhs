@@ -799,7 +799,7 @@ mkPackageState dflags pkgs0 preload0 this_package = do
       -- but in any case remove the current package from the set of
       -- preloaded packages so that base/rts does not end up in the
       -- set up preloaded package when we are just building it
-      preload3 = nub $ filter (/= this_package)
+      preload3 = ordNub $ filter (/= this_package)
                      $ (basicLinkedPackages ++ preload2)
 
   -- Close the preload packages with their dependencies
@@ -857,7 +857,7 @@ getPackageIncludePath dflags pkgs =
   collectIncludeDirs `fmap` getPreloadPackagesAnd dflags pkgs
 
 collectIncludeDirs :: [PackageConfig] -> [FilePath]
-collectIncludeDirs ps = nub (filter notNull (concatMap includeDirs ps))
+collectIncludeDirs ps = ordNub (filter notNull (concatMap includeDirs ps))
 
 -- | Find all the library paths in these and the preload packages
 getPackageLibraryPath :: DynFlags -> [PackageId] -> IO [String]
@@ -865,7 +865,7 @@ getPackageLibraryPath dflags pkgs =
   collectLibraryPaths `fmap` getPreloadPackagesAnd dflags pkgs
 
 collectLibraryPaths :: [PackageConfig] -> [FilePath]
-collectLibraryPaths ps = nub (filter notNull (concatMap libraryDirs ps))
+collectLibraryPaths ps = ordNub (filter notNull (concatMap libraryDirs ps))
 
 -- | Find all the link options in these and the preload packages,
 -- returning (package hs lib options, extra library options, other flags)
@@ -926,7 +926,7 @@ getPackageExtraCcOpts dflags pkgs = do
 getPackageFrameworkPath  :: DynFlags -> [PackageId] -> IO [String]
 getPackageFrameworkPath dflags pkgs = do
   ps <- getPreloadPackagesAnd dflags pkgs
-  return (nub (filter notNull (concatMap frameworkDirs ps)))
+  return (ordNub (filter notNull (concatMap frameworkDirs ps)))
 
 -- | Find all the package frameworks in these and the preload packages
 getPackageFrameworks  :: DynFlags -> [PackageId] -> IO [String]
