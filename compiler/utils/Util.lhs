@@ -1153,15 +1153,18 @@ mulHi a b = fromIntegral (r `shiftR` 32)
 %************************************************************************
 
 \begin{code}
--- https://github.com/nh2/haskell-ordnub/blob/master/ordnub.hs#L27-L32
 ordNub :: (Ord a) => [a] -> [a]
+ordNub [] = []
+ordNub [a] = [a]
+ordNub [a, b]
+  | a == b    = [a]
+  | otherwise = [a, b]
 ordNub l = go Set.empty l
   where
     go _ []     = []
     go s (x:xs) = if x `Set.member` s then go s xs
                                       else x : go (Set.insert x s) xs
 
--- https://github.com/nh2/haskell-ordnub/blob/master/ordnub.hs#L58-L71
 ordNubBy :: (Ord b) => (a -> b) -> (a -> a -> Bool) -> [a] -> [a]
 ordNubBy p f l = go Map.empty l
   where
